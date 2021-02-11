@@ -6,6 +6,7 @@ import logging
 import serial
 import os
 
+# Log file config
 logging.basicConfig(filename="test.log",
                     filemode='a',
                     format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
@@ -15,6 +16,7 @@ logging.info("Started log")
 
 
 def printAndLog(text: str, level: str):
+    # printAndLog fuction to help logging and print messages
     print(text)
     if level == "debug":
         logging.debug(text)
@@ -34,6 +36,7 @@ def readPort(port: str):
 
 def main():
     while True:
+        # get a list of all serial ports
         ports = serial.tools.list_ports.comports()
 
         serialPortList = []
@@ -43,6 +46,7 @@ def main():
             serialPortList.append(
                 {"port": port, "verified": False, "inUse": False})
 
+        # Loop through all serial ports and test if they are being used
         for serialPort in serialPortList:
             try:
                 s = serial.Serial(serialPort["port"], timeout=10)
@@ -59,14 +63,13 @@ def main():
         printAndLog(serialPortList, "info")
 
         for serialPort in serialPortList:
+            # if the port is not in use and contains the right message it begin to be read in a separate thread
             if serialPort["verified"] == True and not serialPort["inUse"]:
                 t = threading.Thread(
                     target=readPort, args=(serialPort["port"],))
                 t.start()
-                readPort(serialPort["port"])
                 printAndLog(
                     f'Verified serial port: {serialPort["port"]}', "info")
-                # os.system(f'python3 serialReader.py {serialPort["port"]}')
 
 
 if __name__ == "__main__":
