@@ -13,6 +13,20 @@ logging.basicConfig(filename="test.log",
 logging.info("Started log")
 
 
+def printAndLog(text: str, level: str):
+    print(text)
+    if level == "debug":
+        logging.debug(text)
+    elif level == "info":
+        logging.info(text)
+    elif level == "warning":
+        logging.warning(text)
+    elif level == "error":
+        logging.error(text)
+    elif level == "critical":
+        logging.critical(text)
+
+
 def main():
     while True:
         ports = serial.tools.list_ports.comports()
@@ -20,7 +34,7 @@ def main():
         serialPortList = []
 
         for port, desc, hwid in sorted(ports):
-            print(port)
+            printAndLog(port, "debug")
             serialPortList.append(
                 {"port": port, "verified": False, "inUse": False})
 
@@ -28,19 +42,21 @@ def main():
             try:
                 s = serial.Serial(serialPort["port"], timeout=10)
                 message = s.readline()
-                print(f'Port: {serialPort["port"]}\n  message: {message}')
+                printAndLog(
+                    f'Port: {serialPort["port"]}\n  message: {message}', "info")
                 if message == b'olleh\n':
                     serialPort["verified"] = True
             except:
                 serialPort["inUse"] = True
-                print(
-                    f'Serial Port {serialPort["port"]} cannot be read')
+                printAndLog(
+                    f'Serial Port {serialPort["port"]} cannot be read', "warning")
 
-        print(serialPortList)
+        printAndLog(serialPortList, "info")
 
         for serialPort in serialPortList:
             if serialPort["verified"] == True and not serialPort["inUse"]:
-                print(f'Serial Port: {serialPort["port"]}')
+                printAndLog(
+                    f'Verified serial port: {serialPort["port"]}', "info")
                 # os.system(f'python3 serialReader.py {serialPort["port"]}')
 
 
