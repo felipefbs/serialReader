@@ -1,8 +1,9 @@
 #!/usr/bin/python3
 
-import serial
 import serial.tools.list_ports
+import threading
 import logging
+import serial
 import os
 
 logging.basicConfig(filename="test.log",
@@ -25,6 +26,10 @@ def printAndLog(text: str, level: str):
         logging.error(text)
     elif level == "critical":
         logging.critical(text)
+
+
+def readPort(port: str):
+    printAndLog(f'Thread Reading {port}', "info")
 
 
 def main():
@@ -55,6 +60,10 @@ def main():
 
         for serialPort in serialPortList:
             if serialPort["verified"] == True and not serialPort["inUse"]:
+                t = threading.Thread(
+                    target=readPort, args=(serialPort["port"],))
+                t.start()
+                readPort(serialPort["port"])
                 printAndLog(
                     f'Verified serial port: {serialPort["port"]}', "info")
                 # os.system(f'python3 serialReader.py {serialPort["port"]}')
