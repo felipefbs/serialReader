@@ -1,0 +1,3 @@
+[submodule "openmote-py"]
+	path = openmote-py
+	url = https://github.com/openmote/openmote-py
